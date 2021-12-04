@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, UploadFile, File
 from sqlalchemy.orm import Session
-from routers.schemas import PostBase, PostDisplay
+from routers.schemas import PostBase, PostDisplay, UserAuth
 from db.database import get_db
 from fastapi.exceptions import HTTPException
 from db import db_post
@@ -8,6 +8,7 @@ from typing import List
 import random
 import string
 import shutil
+from auth.oauth2 import get_current_user
 
 router = APIRouter(
     prefix='/post',
@@ -18,7 +19,9 @@ image_url_types = ['absolute', 'relative']
 
 
 @router.post('', response_model=PostDisplay)
-def create_post(request: PostBase, db: Session = Depends(get_db)):
+def create_post(request: PostBase,
+                db: Session = Depends(get_db),
+                current_user: UserAuth = Depends(get_current_user)):
     if request.image_url_type not in image_url_types:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Parameter image_url_type can only take values 'absolute' or 'relative'.")
@@ -31,7 +34,8 @@ def get_all_posts(db: Session = Depends(get_db)):
 
 
 @router.post('/image')
-def upload_image(image: UploadFile = File(...)):
+def upload_image(image: UploadFile = File(...),
+                 current_user: UserAuth = Depends(get_current_user)):
     letters = string.ascii_letters
     rand_str = ''.join(random.choice(letters) for i in range(6))
     new = f'_{rand_str}.'
