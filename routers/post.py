@@ -4,6 +4,7 @@ from routers.schemas import PostBase, PostDisplay
 from db.database import get_db
 from fastapi.exceptions import HTTPException
 from db import db_post
+from typing import List
 
 router = APIRouter(
     prefix='/post',
@@ -20,3 +21,7 @@ def create_post(request: PostBase, db: Session = Depends(get_db)):
                             detail="Parameter image_url_type can only take values 'absolute' or 'relative'.")
     return db_post.create_post(db, request)
 
+
+@router.get('/all', response_model=List[PostDisplay])
+def get_all_posts(db: Session = Depends(get_db)):
+    return db_post.get_all_posts(db)
