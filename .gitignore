@@ -1,5 +1,7 @@
 /.enw/
 /.idea/
 *__pycache__*
+
 *.db
 /images/*
+/venv/*
