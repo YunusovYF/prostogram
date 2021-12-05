@@ -10,6 +10,7 @@ import os
 app = FastAPI()
 
 os.makedirs('./images', exist_ok=True)
+
 app.mount('/images', StaticFiles(directory='images'), name='images')
 
 app.include_router(authentication.router)
